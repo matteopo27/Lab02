@@ -1,22 +1,81 @@
 def carica_da_file(file_path):
     """Carica le foto dal file, creando un nuovo anno ogni volta che compare per la prima volta"""
     # TODO
+    file_path = file_path.strip("'\"") #con il comando strip rimuovo eventuali apici o virgolette del percorso che possono portare ad errori
+    album={} #creazione dizionario
+    try:
+        with open(file_path,'r',encoding='utf-8')as f: #apertura del file
+            f.readline() # il comando readline scarta la prima miga
+            for line in f: # creo un ciclo per estrapolare i vari campi
+                campi=line.strip().split(',')
+                codice=campi[0]
+                titolo=campi[1]
+                autore=campi[2]
+                mese=int(campi[3])
+                anno=int(campi[4])
+
+                if anno not in album: # se l'anno non è presente in album,lo crea assegnandogli una lista vuota
+                    album[anno]=[]
+
+                foto={ #nuovo dizionario per rappresentare le singole foto
+                    'codice':codice,
+                    'titolo':titolo,
+                    'autore':autore,
+                    'mese':mese,
+                    'anno':anno
+                    }
+                album[anno].append(foto) #aggiunge la foto alla lista dell'anno
+        return album
+    except FileNotFoundError: #verifica del percorso per eventuali errori
+        print(f"errore nell'apertura del file {file_path}")
+        return None
+
+
 
 
 def aggiungi_foto(album, codice, titolo, autore, mese, anno, file_path):
     """Aggiunge una foto all'album, creando l'anno al volo se non è ancora presente"""
     # TODO
 
+    if not (1 <= mese <= 12): #verifica se il mese è compreso tra 1 e 12, in caso contrario restituisce None
+        return None
+
+    for lista_foto in album.values():  #ciclo per verificare i vari codici delle foto presenti in album
+        for foto in lista_foto:
+            if foto["codice"] == codice:
+                return None
+
+    if anno not in album: # se anno non è presente in album
+        album[anno] = []
+    nuova_foto = { #creazione di un nuovo dizionario per le nuove foto da caricare
+        "codice": codice,
+        "titolo": titolo,
+        "autore": autore,
+        "mese": mese,
+        "anno": anno
+    }
+    album[anno].append(nuova_foto)
+
+    return nuova_foto
+
 
 def cerca_foto(album, codice):
     """Cerca una foto nell'album dato il codice"""
     # TODO
 
+    for lista_foto in album.values():  #ciclo per verificare i codici delle foto dell'album
+        for foto in lista_foto:
+            if codice == foto['codice']:  #se il codice è uguale stampa le caratteristiche della foto
+
+                return f"{foto['codice']}, {foto['titolo']}, {foto['autore']}, {foto['mese']}, {foto['anno']}"
 
 def elenco_foto_anno_per_titolo(album, anno):
     """Ordina i titoli delle foto di un dato anno in ordine alfabetico"""
     # TODO
-
+    if anno not in album: # se la foto non è in album stampa None
+        return None
+    titoli = [foto['titolo'] for foto in album[anno]] #Crea una lista estraendo il campo 'titolo' da ogni foto dell'anno selezionato
+    return sorted(titoli)
 
 def main():
     album = []
